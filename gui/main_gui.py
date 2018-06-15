@@ -141,9 +141,17 @@ class MainGUI(Gtk.Window):
         self.currentConfigWindow.unparent()
         self.currentConfigWindow.show_all()
         self.currentConfigWindow.set_size_request(definitions.CONFIG_WINDOW_WIDTH,definitions.CONFIG_WINDOW_HEIGHT)
-        self.configWidget.set_sensitive(collector.is_running() == False)
-        setStartSensitive = collector.is_running() == False and not isinstance(collector,engine.collector.ManualCollector)
-        self.set_play_stop_btns(setStartSensitive, collector.is_running())
+        ### So far following five lines work
+        service_name = "ecel_service_"+collector.name
+        service = ecel_service.ecel_Service(service_name, pid_dir='/tmp')
+        self.configWidget.set_sensitive(service.is_running() == False)
+        setStartSensitive = service.is_running() == False and not isinstance(collector,engine.collector.ManualCollector)
+        self.set_play_stop_btns(setStartSensitive, service.is_running())
+        ### Old code which seems to mess up GUI when using Stop/Play btns
+        # self.configWidget.set_sensitive(collector.is_running() == False)
+        # setStartSensitive = collector.is_running() == False and not isinstance(collector,engine.collector.ManualCollector)
+        # self.set_play_stop_btns(setStartSensitive, collector.is_running())
+        #
         self.clear_config_window()
         self.configWidget.add(self.currentConfigWindow)
 
@@ -187,7 +195,9 @@ class MainGUI(Gtk.Window):
                         service.stop()
                         '''Old Code'''
                         #collector.terminate()
+                        print service.is_running(), " Action.STOP"###
                         self.set_config_widget_sensitivity()
+                        print service.is_running(), " Action.STOP2"###
                     except NoSuchProcess:
                         # On windows, when a process finishes running a command, it terminates. This is needed to ensure
                         # ...ECEL doesnt crash on Windows if the stop button is pressed for a collector whose process...
@@ -210,12 +220,19 @@ class MainGUI(Gtk.Window):
     #Here is where the buttons for Play and Stop get Updated
     #TODO: Adjust this method to check if the daemon exists as opposed to if collector is running
     def set_config_widget_sensitivity(self):
-        collector = self.engine.get_collector(self.currentConfigWindow.get_name())
+        collector = self.engine.get_collector(self.currentConfigWindow.get_name()) #NOTE: in orignal
         service_name = "ecel_service_"+collector.name
         service = ecel_service.ecel_Service(service_name, pid_dir='/tmp')
-        print service.is_running()
-        self.configWidget.set_sensitive(service.is_running() == False)
-        self.set_play_stop_btns(service.is_running() == False, service.is_running())
+        service_running_check1 = service.is_running() #TODO: Make a note of what this line and line 229 is for.
+        #print service_running_check1, " Check 1"
+        self.configWidget.set_sensitive(service.is_running() == True) #NOTE: in orignal except service is collector in original; changed False to True
+        service_running_check2 = service.is_running()
+        #print service_running_check2, " Check 2"
+        #self.set_play_stop_btns(service.is_running() == False, service.is_running()) #NOTE: same as previous note; replaced this line wih the condition below
+        if(service_running_check1 and service_running_check2):
+            self.set_play_stop_btns(True, False)
+        else:
+            self.set_play_stop_btns(False, True)
 
     def get_current_config_window_name(self):
         return self.currentConfigWindow.get_name()

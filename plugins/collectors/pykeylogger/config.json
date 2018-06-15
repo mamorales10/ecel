@@ -1,19 +1,19 @@
 {
   "collector": {
-    "name": "pykeylogger",
-    "type": "automatic",
+    "name": "pykeylogger", 
+    "type": "automatic", 
     "configurations": {
       "general": {
         "auto restart": {
-          "enabled": false,
+          "enabled": false, 
           "time interval": 1800
         }
-      },
+      }, 
       "archiving": {
-        "enabled": true,
-        "time interval": 1800,
+        "enabled": true, 
+        "time interval": 5, 
         "file format": "zip"
-      },
+      }, 
       "parsing": {
         "parser": "plugins.parsers.pykeylogger.pykeylogger_parser,PyKeyloggerParser"
       }

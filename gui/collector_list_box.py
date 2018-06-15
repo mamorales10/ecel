@@ -41,8 +41,8 @@ class CollectorListBox(Gtk.ListBox):
         '''if(event.button == Gdk.BUTTON_PRIMARY and  ((event.state & modifiers) == Gdk.ModifierType.CONTROL_MASK)):
             print "CTRL was pressed"
             self.set_selection_mode(Gtk.SelectionMode.MULTIPLE)'''
-        
-        if(event.button == Gdk.BUTTON_PRIMARY and ((event.state & modifiers) == Gdk.ModifierType.SHIFT_MASK)): 
+
+        if(event.button == Gdk.BUTTON_PRIMARY and ((event.state & modifiers) == Gdk.ModifierType.SHIFT_MASK)):
         	print "Shift was pressed"
         	self.set_selection_mode(Gtk.SelectionMode.MULTIPLE)
 
@@ -177,4 +177,3 @@ class CollectorListBox(Gtk.ListBox):
             if (action == Action.STOP):
                 self.unselect_row(collectorRow)
             self.update_row_color(collectorRow)
-
