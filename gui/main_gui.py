@@ -195,9 +195,7 @@ class MainGUI(Gtk.Window):
                         service.stop()
                         '''Old Code'''
                         #collector.terminate()
-                        print service.is_running(), " Action.STOP"###
                         self.set_config_widget_sensitivity()
-                        print service.is_running(), " Action.STOP2"###
                     except NoSuchProcess:
                         # On windows, when a process finishes running a command, it terminates. This is needed to ensure
                         # ...ECEL doesnt crash on Windows if the stop button is pressed for a collector whose process...
