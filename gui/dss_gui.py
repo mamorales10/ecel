@@ -15,9 +15,9 @@ from datetime import datetime, timedelta
 # send extracted data to ecel-model module
 
 class DssGUI(Gtk.Window): 
-	def __init__(self):
+	def __init__(self):#, parent, collectors):
 		super(DssGUI, self).__init__()
-		
+		 
 		#self.main_gui = parent
 		
 		#self.collectors = collectors
@@ -34,11 +34,8 @@ class DssGUI(Gtk.Window):
 		for i in xrange(len(self.options_list)):
 			self.time_options.append([self.options_list[i]])
 			
-		self.timeframe_combobox = Gtk.ComboBox.new_with_model_and_entry(self.time_options)
-		
-		#TODO: Figure out why combobox isn't showing the first option
-		#	   I think it's the following line
-		self.timeframe_combobox.set_entry_text_column(0) 
+		self.timeframe_combobox = Gtk.ComboBox.new_with_model(self.time_options)
+		self.timeframe_combobox.set_active(0) 
 		
 		cell = Gtk.CellRendererText()
 		self.timeframe_combobox.pack_start(cell, True)
@@ -46,7 +43,7 @@ class DssGUI(Gtk.Window):
 		
 		# create buttons
 		button_analyze = Gtk.Button("Analyze")
-		button_analyze.connect("clicked", self.close_dialog) #TODO: Change to self.analyze
+		button_analyze.connect("clicked", self.analyze)
 		button_cancel = Gtk.Button("Cancel")
 		button_cancel.connect("clicked", self.close_dialog)
 		
@@ -67,14 +64,98 @@ class DssGUI(Gtk.Window):
 		
 		self.add(vbox)
 		self.show_all()
-		
+	
 	def close_dialog(self, event):
-		self.hide_all()
+		self.hide()
 		
-	#def analyze(self, event):
-		# Put code here
+	def analyze(self, event):
+		self.errormsg.set_text("")
+		selected = self.timeframe_combobox.get_active() # Returns index of currently active item
+		if selected <= 0 or selected > 4:
+			self.errormsg.set_text("Invalid timeframe option")
+			return
 		
+		# merge and extract desired timeframe from all pcaps
+		pcap_dir = self.mergePcaps()
+		self.timeFilterPcap(selected, pcap_dir)
+		
+		self.cleanup(pcap_dir)
+		
+		
+	# merge all pcaps in directory into one single pcap named dss_merged_output.pcap
+	# returns directory where tshark plugin raw pcaps
+	def mergePcaps(self):
+		# check if tshark plugin exists
+		pcap_dir = ""
+		tshark_found = False
+		for c in self.collectors:
+			if c.name == "tshark":
+				tshark_found = True
+				pcap_dir = c.output_dir
+		
+		if not tshark_found:
+			self.errormsg.set_text("Error: tshark plugin not found")
+			return
+			
+		# check for pcap files in tshark plugins folder
+		pcap_file_list = glob.glob(pcap_dir + '/*.pcap*')
+		if not pcap_file_list:
+			self.errormsg.set_text("No PCAPS in directory: \n%s" % pcap_dir)
+			return
+		
+		# use mergecap to merge all pcaps in pcap_dir
+		pcap_file_string = " ".join(pcap_file_list)
+		cmd = "mergecap -w " + pcap_dir + "/dss_merged_output.pcap " + pcap_file_string
+		utils.helpers.execCommand(cmd)
+		
+		return pcap_dir
+		
+	# execute system command to call tshark to filter merged pcap and output to new file
+	# pcap_dir: root directory of raw pcap files without trailing /
+	# time_filter: timestamp in the form 2018-02-14 17:13:48.342691
+	def timeFilterPcap(self, selected, pcap_dir):
+		
+		# filter packets by selected timeframe and output to new file
+		if selected == "5 minutes":
+			timeDelta = timedelta(minutes=-5)
+		elif selected == "30 minutes":
+			timeDelta = timedelta(minutes=-30)
+		elif selected == "1 hour":
+			timeDelta = timedelta(hours=-1)
+		elif selected == "All":
+			timeDelta = timedelta(weeks=-5200)#back 100 years
+		else:
+			self.errormsg.set_text("Invalid timeframe option")
+			return
+		
+		timeFilter = datetime.utcnow() + timeDelta # timestamp in the form: 2018-02-14 17:13:48.342691
+		
+		if not os.path.isfile(pcap_dir + "/dss_merged_output.pcap"):
+			self.errormsg.set_text("Error: merged output file not found")
+			return
+			
+		# use tshark to filter merged pcap by time
+		cmd = "tshark -Y 'frame.time >= \"" + str(timeFilter) + "\"' -r " + pcap_dir + "/dss_merged_output.pcap -w " + pcap_dir + "/dss_merged_time_filtered_output.pcap"
+		utils.helpers.execCommand(cmd)
+        
+		# call ecel-model to get suggestions
+		# model must already exist in DB and mongod must be running
+        
+		#TODO CHECK THAT MONGOD IS RUNNING AND DB EXISTS
+		cmd = definitions.ECEL_DSS_ROOT + "run.sh -i " + pcap_dir + "/dss_merged_time_filtered_output.pcap -d " + definitions.ECEL_DSS_ROOT
+        
+		utils.helpers.execCommand(cmd)
 
+	# remove files generated in analyze function
+	def cleanup(self, pcap_dir):
+		try:
+			os.remove(pcap_dir + "/dss_merged_output.pcap")
+			os.remove(pcap_dir + "/dss_merged_time_filtered_output.pcap")
+			
+		except OSError as err:
+			print "System Error:", err
+
+# Following lines are used to test this file
 DssGUI()
 Gtk.main()	
 		
