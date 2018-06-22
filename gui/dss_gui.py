@@ -4,10 +4,10 @@ from gi.repository import Gtk,Gdk
 import os
 import glob
 import time
-#import definitions
-#import utils.gui
-#import utils.helpers
-#from engine.engine import Engine as app_engine
+import definitions
+import utils.gui
+import utils.helpers
+from engine.engine import Engine as app_engine
 from datetime import datetime, timedelta
 
 # gui to choose analysistime frame window
@@ -15,16 +15,16 @@ from datetime import datetime, timedelta
 # send extracted data to ecel-model module
 
 class DssGUI(Gtk.Window): 
-	def __init__(self):#, parent, collectors):
+	def __init__(self, parent, collectors):
 		super(DssGUI, self).__init__()
 		 
-		#self.main_gui = parent
+		self.main_gui = parent
 		
-		#self.collectors = collectors
+		self.collectors = collectors
 		self.set_title("DSS")
 		self.set_modal(True)
-		#self.set_transient_for(self.main_gui)
-		self.set_position(Gtk.WindowPosition.CENTER)#_ON_PARENT)
+		self.set_transient_for(self.main_gui)
+		self.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)
 		self.set_size_request(275,250)
 		self.set_resizable(False)
 		
@@ -116,13 +116,13 @@ class DssGUI(Gtk.Window):
 	def timeFilterPcap(self, selected, pcap_dir):
 		
 		# filter packets by selected timeframe and output to new file
-		if selected == "5 minutes":
+		if selected == 1: # "5 minutes"
 			timeDelta = timedelta(minutes=-5)
-		elif selected == "30 minutes":
+		elif selected == 2: # "30 minutes"
 			timeDelta = timedelta(minutes=-30)
-		elif selected == "1 hour":
+		elif selected == 3: # "1 hour"
 			timeDelta = timedelta(hours=-1)
-		elif selected == "All":
+		elif selected == 4: # "ALL"
 			timeDelta = timedelta(weeks=-5200)#back 100 years
 		else:
 			self.errormsg.set_text("Invalid timeframe option")
@@ -155,12 +155,4 @@ class DssGUI(Gtk.Window):
 		except OSError as err:
 			print "System Error:", err
 
-# Following lines are used to test this file
-DssGUI()
-Gtk.main()	
-		
-		
-		
-		
-		
-		
+

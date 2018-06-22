@@ -9,6 +9,7 @@ import definitions
 import engine.collector
 import ecel_service
 from collector_list_box import CollectorListBox
+from gui.dss_gui import DssGUI
 from gui.export_gui import ExportGUI
 from gui.progress_bar import ProgressBar
 from gui.plugin_config_gui import PluginConfigGUI
@@ -53,6 +54,10 @@ class MainGUI(Gtk.Window):
         self.remove_data_button = Gtk.ToolButton()
         self.remove_data_button.set_icon_widget(self.get_image("delete.png"))
         self.remove_data_button.connect("clicked", self.delete_all)
+
+        self.dss_button = Gtk.ToolButton()
+        self.dss_button.set_icon_widget(self.get_image("model.png"))
+        self.dss_button.connect("clicked", self.call_dss_module, app_engine.collectors)
 
         self.toolbarWidget = Gtk.Box()
         self.toolbarWidget.set_orientation(Gtk.Orientation.HORIZONTAL)
@@ -116,6 +121,9 @@ class MainGUI(Gtk.Window):
         toolbar.insert(self.export_button, 5)
         self.remove_data_button.set_tooltip_text("Delete All Collector Data")
         toolbar.insert(self.remove_data_button, 6)
+        toolbar.insert(separator3, 7)
+        self.dss_button.set_tooltip_text("DSS")
+        toolbar.insert(self.dss_button, 8)
 
         return toolbar
 
@@ -161,6 +169,9 @@ class MainGUI(Gtk.Window):
 
     def export_all(self, event):
         ExportGUI(self)
+
+    def call_dss_module(self, event, collectors):
+        DssGUI(self, collectors)
 
     def delete_all(self, event):
         delete_script = "cleanCollectorData.bat" if os.name == "nt" else "cleanCollectorData.sh"
