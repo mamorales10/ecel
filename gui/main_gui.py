@@ -232,13 +232,13 @@ class MainGUI(Gtk.Window):
         collector = self.engine.get_collector(self.currentConfigWindow.get_name()) #NOTE: in orignal
         service_name = "ecel_service_"+collector.name
         service = ecel_service.ecel_Service(service_name, pid_dir='/tmp')
-        service_running_check1 = service.is_running() #TODO: Make a note of what this line and line 229 is for.
-        #print service_running_check1, " Check 1"
-        self.configWidget.set_sensitive(service.is_running() == True) #NOTE: in orignal except service is collector in original; changed False to True
-        service_running_check2 = service.is_running()
-        #print service_running_check2, " Check 2"
-        #self.set_play_stop_btns(service.is_running() == False, service.is_running()) #NOTE: same as previous note; replaced this line wih the condition below
-        if(service_running_check1 and service_running_check2):
+        
+        self.configWidget.set_sensitive(service.is_running() == True) #NOTE: changed False to True
+        
+        #self.set_play_stop_btns(service.is_running() == False, service.is_running()) #NOTE: replaced this line wih the condition below
+        # If the configuration widget is sensitive, the start button is sensitive;
+        # otherwise, the stop button is sensitive
+        if(self.configWidget.is_sensitive()):
             self.set_play_stop_btns(True, False)
         else:
             self.set_play_stop_btns(False, True)
