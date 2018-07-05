@@ -37,6 +37,11 @@ class PluginConfigGUI(Gtk.Frame):
             headerLabel = Gtk.Label()
             headerLabel.set_label(collector.name + " Plugin Configurations")
             headerBox.add(headerLabel)
+
+            self.button_save= Gtk.Button("Save")
+            self.button_save.connect("clicked", self.save_current_plugin_configs)
+            headerBox.pack_end(self.button_save, False, False, 0)
+
             headerBox.get_style_context().add_class("config-header")
             headerLabel.set_margin_left(definitions.CONFIG_WINDOW_WIDTH / 3) # center align text in header box
 
@@ -45,12 +50,8 @@ class PluginConfigGUI(Gtk.Frame):
 
             self.vbox_plugin_main = None
 
-            self.button_save= Gtk.Button("Save")
-            self.button_save.connect("clicked", self.save_current_plugin_configs)
-
             self.vbox_main.pack_start(headerBox, True, True, 0)
             self.vbox_main.pack_start(frame_plugin_confs, True, True, 0)
-            self.vbox_main.pack_start(self.button_save, True, True, 0)
 
             self.show_plugin_configs(collector, frame_plugin_confs)
 
