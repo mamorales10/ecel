@@ -7,29 +7,32 @@ import engine.collector
 import definitions
 import os
 
-class CollectorListBox(Gtk.ListBox):
+class CollectorListBox(Gtk.TreeView):
 
     def __init__(self, engine, main_gui):
         super(CollectorListBox,self).__init__()
 
         self.engine = engine
         self.numCollectors = self.engine.get_collector_length()
-        self.set_selection_mode(Gtk.SelectionMode.SINGLE)
+        #self.set_selection_mode(Gtk.SelectionMode.SINGLE)
         self.attached_gui = main_gui
         self.css = CssProvider("widget_styles.css")
 
         self.collectorStatus = {}
 
-        self.connect("row-selected",self.update_row_colors)
+        self.set_activate_on_single_click(True)
+        #self.connect("row-selected",self.update_row_colors)
         self.connect("row-activated",self.row_activated_handler)
+
         # Enable multiple collector selection when CTRL + left click occurs (selection mode == MULTIPLE)
         self.connect("button-press-event",self.enable_multiple)
         # List box updates collector rows on up/down arrow/tab key presses.
         self.connect("key-release-event",self.key_release_handler)
 
-        for i, collector in enumerate(self.engine.collectors):
-            self.add(self.create_collector_row(collector))
-            self.collectorStatus[collector.name] = False
+        self.create_collector_list()
+        # for i, collector in enumerate(self.engine.collectors):
+        #     self.add(self.create_collector_row(collector))
+        #     self.collectorStatus[collector.name] = False
 
     # Collector List Box enables mutliple selection on CTRL + left click
     def enable_multiple(self, lBox, event):
@@ -72,26 +75,33 @@ class CollectorListBox(Gtk.ListBox):
         	self.unselect_all()
         	self.set_selection_mode(Gtk.SelectionMode.SINGLE)
 
-    # Create Gtk.ListBoxRow() with collector information
-    def create_collector_row(self,collector):
+    # Create Gtk.TreeView() with collector information
+    def create_collector_list(self):
 
-        label = Gtk.Label()
-        label.set_label(collector.name)
+        collector_liststore = Gtk.ListStore(str)
 
-        row = Gtk.ListBoxRow()
-        row_height = definitions.MAIN_WINDOW_HEIGHT / self.numCollectors
-        row.set_size_request(definitions.COLLECTOR_WIDGET_WIDTH,row_height)
-        row.set_name(collector.name)
+        for i, service in enumerate(self.engine.collectors):
+            collector_liststore.append([service.name])
+            self.collectorStatus[service.name] = False
 
-        box = Gtk.EventBox()
-        box.add(label)
-        box.connect("button-press-event",self.collector_listbox_handler,collector.name)
+        #treeview = Gtk.TreeView(collector_liststore)
+        self.set_model(collector_liststore)
 
-        row.add(box)
-        row.get_style_context().add_class("listBoxRow")
-        row.get_style_context().add_class("inactive-color")
+        cellRenderer = Gtk.CellRendererText()
+        column = Gtk.TreeViewColumn("Collectors", cellRenderer, text=0)
+        self.append_column(column)
 
-        return row
+        self.set_activate_on_single_click(True)
+
+        select = self.get_selection()
+        select.connect("changed", self.tree_selection_change_handler)
+
+
+    def tree_selection_change_handler(self, selection):
+        model, treeiter = selection.get_selected()
+        if treeiter is not None:
+            print model[treeiter][0]
+            #self.collector_listbox_handler(model[treeiter][0])
 
     # Show options over collector row on right click, select collector and create config window on left click
     def collector_listbox_handler(self, eventBox, event, collectorName):
