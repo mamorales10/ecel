@@ -209,16 +209,15 @@ class CollectorListBox(Gtk.TreeView):
         print collector_name
 
         collector = self.engine.get_collector(collector_name)
-        ###self.attached_gui.create_config_window(Gdk.Event(),collector)
 
-        if(self.get_selection().get_mode() == Gtk.SelectionMode.SINGLE):#Fixed
+        if(self.get_selection().get_mode() == Gtk.SelectionMode.SINGLE):
         #   self.select_row(lBoxRow)
-            self.attached_gui.create_config_window(Gdk.Event(),collector)#Fixed
-        if(self.get_selection().get_mode() == Gtk.SelectionMode.MULTIPLE):#Fixed
+            self.attached_gui.create_config_window(Gdk.Event(),collector)
+        if(self.get_selection().get_mode() == Gtk.SelectionMode.MULTIPLE):
         #     if(collector_name() != self.attached_gui.get_current_config_window_name()):
         #         self.toggle_clicked_row(lBoxRow) #You need this function
             if(not self.attached_gui.is_config_window_active()):
-                self.attached_gui.create_config_window(Gdk.Event(), collector)#Fixed
+                self.attached_gui.create_config_window(Gdk.Event(), collector)
         # self.update_row_colors(Gdk.Event(),lBoxRow)
 
     # Called by the start/stop all collector menu option in the staus icon menu. Updates the status of the collector rows when they are pressed.
