@@ -7,6 +7,8 @@ import engine.collector
 import definitions
 import os
 
+#TODO: Select multiple collectors
+
 class CollectorListBox(Gtk.TreeView):
 
     def __init__(self, engine, main_gui):
@@ -14,7 +16,7 @@ class CollectorListBox(Gtk.TreeView):
 
         self.engine = engine
         self.numCollectors = self.engine.get_collector_length()
-        #self.set_selection_mode(Gtk.SelectionMode.SINGLE)
+        self.get_selection().set_mode(Gtk.SelectionMode.SINGLE)
         self.attached_gui = main_gui
         self.css = CssProvider("widget_styles.css")
 
@@ -47,7 +49,20 @@ class CollectorListBox(Gtk.TreeView):
 
         if(event.button == Gdk.BUTTON_PRIMARY and ((event.state & modifiers) == Gdk.ModifierType.SHIFT_MASK)):
         	print "Shift was pressed"
-        	self.set_selection_mode(Gtk.SelectionMode.MULTIPLE)
+        	self.get_selection().set_mode(Gtk.SelectionMode.MULTIPLE)
+        elif(event.button == Gdk.BUTTON_SECONDARY): # right click
+            path_info = self.get_path_at_pos(event.x, event.y)
+            if path_info != None:
+                path, col, cellx, celly = path_info
+                self.grab_focus()
+                self.set_cursor(path,col,0)
+
+            selection = self.get_selection()
+            model, treeiter = selection.get_selected()
+            collectorName = model[treeiter][0]
+            collector = self.engine.get_collector(collectorName)
+            
+            self.show_collector_popup_menu(event,collector)
 
     # Left pane responds to up/down arrow and tab key presses
     def key_release_handler(self, listBox, event):
@@ -58,10 +73,15 @@ class CollectorListBox(Gtk.TreeView):
 
         print "Reactivate single:", reactivate_single
 
+        # if (event.keyval == Gdk.KEY_Up or event.keyval == Gdk.KEY_Down or Gdk.KEY_Tab):
+        #     collector = self.engine.get_collector(self.get_selected_row().get_name())
+        #     if(self.get_selection_mode() == Gtk.SelectionMode.SINGLE):
+        #         self.attached_gui.create_config_window(event,collector)
         if (event.keyval == Gdk.KEY_Up or event.keyval == Gdk.KEY_Down or Gdk.KEY_Tab):
-            collector = self.engine.get_collector(self.get_selected_row().get_name())
-            if(self.get_selection_mode() == Gtk.SelectionMode.SINGLE):
-                self.attached_gui.create_config_window(event,collector)
+            model, treeiter = self.get_selection().get_selected()
+            collector = self.engine.get_collector(model[treeiter][0])
+
+            self.attached_gui.create_config_window(event,collector)
 
         if(reactivate_single):
             # The next click will renable single selection
@@ -93,15 +113,17 @@ class CollectorListBox(Gtk.TreeView):
 
         self.set_activate_on_single_click(True)
 
+        # This block not necessary
         select = self.get_selection()
         select.connect("changed", self.tree_selection_change_handler)
 
-
+    # I think this is not necessary 
     def tree_selection_change_handler(self, selection):
         model, treeiter = selection.get_selected()
         if treeiter is not None:
             print model[treeiter][0]
             #self.collector_listbox_handler(model[treeiter][0])
+
 
     # Show options over collector row on right click, select collector and create config window on left click
     def collector_listbox_handler(self, eventBox, event, collectorName):
@@ -165,17 +187,39 @@ class CollectorListBox(Gtk.TreeView):
             row.get_style_context().add_class("inactive-color")
 
     # Runs when a Gtk.ListBoxRow() is activated
-    def row_activated_handler(self,lBox,lBoxRow):
-        collector = self.engine.get_collector(lBoxRow.get_name())
-        if(self.get_selection_mode() == Gtk.SelectionMode.SINGLE):
-            self.select_row(lBoxRow)
-            self.attached_gui.create_config_window(Gdk.Event(),collector)
-        if(self.get_selection_mode() == Gtk.SelectionMode.MULTIPLE):
-            if(lBoxRow.get_name() != self.attached_gui.get_current_config_window_name()):
-                self.toggle_clicked_row(lBoxRow)
+    # def row_activated_handler(self,lBox,lBoxRow):
+    #     collector = self.engine.get_collector(lBoxRow.get_name())
+    #     if(self.get_selection_mode() == Gtk.SelectionMode.SINGLE):
+    #         self.select_row(lBoxRow)
+    #         self.attached_gui.create_config_window(Gdk.Event(),collector)
+    #     if(self.get_selection_mode() == Gtk.SelectionMode.MULTIPLE):
+    #         if(lBoxRow.get_name() != self.attached_gui.get_current_config_window_name()):
+    #             self.toggle_clicked_row(lBoxRow)
+    #         if(not self.attached_gui.is_config_window_active()):
+    #             self.attached_gui.create_config_window(Gdk.Event(), collector)
+    #     self.update_row_colors(Gdk.Event(),lBoxRow)
+
+    # Runs when a Gtk.TreeView row is activated
+    def row_activated_handler(self, treeview, treepath, column):
+        
+        i = treepath.get_indices()[0]
+        model = treeview.get_model()
+        collector_name = model[i][0]
+
+        print collector_name
+
+        collector = self.engine.get_collector(collector_name)
+        ###self.attached_gui.create_config_window(Gdk.Event(),collector)
+
+        if(self.get_selection().get_mode() == Gtk.SelectionMode.SINGLE):#Fixed
+        #   self.select_row(lBoxRow)
+            self.attached_gui.create_config_window(Gdk.Event(),collector)#Fixed
+        if(self.get_selection().get_mode() == Gtk.SelectionMode.MULTIPLE):#Fixed
+        #     if(collector_name() != self.attached_gui.get_current_config_window_name()):
+        #         self.toggle_clicked_row(lBoxRow) #You need this function
             if(not self.attached_gui.is_config_window_active()):
-                self.attached_gui.create_config_window(Gdk.Event(), collector)
-        self.update_row_colors(Gdk.Event(),lBoxRow)
+                self.attached_gui.create_config_window(Gdk.Event(), collector)#Fixed
+        # self.update_row_colors(Gdk.Event(),lBoxRow)
 
     # Called by the start/stop all collector menu option in the staus icon menu. Updates the status of the collector rows when they are pressed.
     def update_collector_status(self, action, collectorName):
