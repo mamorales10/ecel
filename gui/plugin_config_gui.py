@@ -40,9 +40,9 @@ class PluginConfigGUI(Gtk.Frame):
 
             self.button_save= Gtk.Button("Save")
             self.button_save.connect("clicked", self.save_current_plugin_configs)
-            headerBox.pack_end(self.button_save, False, False, 0)
+            headerBox.pack_end(self.button_save, False, False, 10)
 
-            headerBox.get_style_context().add_class("config-header")
+            #headerBox.get_style_context().add_class("config-header")
             headerLabel.set_margin_left(definitions.CONFIG_WINDOW_WIDTH / 3) # center align text in header box
 
             frame_plugin_confs = Gtk.Frame()
@@ -50,7 +50,8 @@ class PluginConfigGUI(Gtk.Frame):
 
             self.vbox_plugin_main = None
 
-            self.vbox_main.pack_start(headerBox, True, True, 0)
+            self.vbox_main.get_style_context().add_class("config-header")
+            self.vbox_main.pack_start(headerBox, False, True, 10)
             self.vbox_main.pack_start(frame_plugin_confs, True, True, 0)
 
             self.show_plugin_configs(collector, frame_plugin_confs)
@@ -159,12 +160,15 @@ class PluginConfigGUI(Gtk.Frame):
         hbox_main.pack_start(label_text, True, True, 0)
         hbox_main.pack_start(entry_text, True, True, 0)
 
+        vbox_main = Gtk.VBox()
+        vbox_main.pack_start(hbox_main, False, True, 0)
+
         self.plugin_config_widgets.append(entry_text)
         self.plugin_config_traces.append(trace)
         sensitivity_group.append(label_text)
         sensitivity_group.append(entry_text)
 
-        return hbox_main
+        return vbox_main
 
     def create_number_hbox(self, label, value, trace, sensitivity_group, constraints=None):
         hbox_main = Gtk.HBox()

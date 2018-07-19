@@ -71,7 +71,6 @@ class MainGUI(Gtk.Window):
         self.collectorWidget = Gtk.ScrolledWindow()
         self.collectorWidget.set_size_request(definitions.COLLECTOR_WIDGET_WIDTH,definitions.MAIN_WINDOW_HEIGHT - definitions.TOOL_BAR_HEIGHT)
         self.collectorWidget.add(self.collectorList)
-        
 
         self.currentConfigWindow = PluginConfigGUI(self,None)
 
@@ -150,7 +149,7 @@ class MainGUI(Gtk.Window):
         self.currentConfigWindow.unparent()
         self.currentConfigWindow.show_all()
         self.currentConfigWindow.set_size_request(definitions.CONFIG_WINDOW_WIDTH,definitions.CONFIG_WINDOW_HEIGHT)
-        
+        ### So far following five lines work
         service_name = "ecel_service_"+collector.name
         service = ecel_service.ecel_Service(service_name, pid_dir='/tmp')
         self.configWidget.set_sensitive(service.is_running() == False)
@@ -230,7 +229,7 @@ class MainGUI(Gtk.Window):
     #Here is where the buttons for Play and Stop get Updated
     #TODO: Adjust this method to check if the daemon exists as opposed to if collector is running
     def set_config_widget_sensitivity(self):
-        collector = self.engine.get_collector(self.currentConfigWindow.get_name())
+        collector = self.engine.get_collector(self.currentConfigWindow.get_name()) #NOTE: in orignal
         service_name = "ecel_service_"+collector.name
         service = ecel_service.ecel_Service(service_name, pid_dir='/tmp')
         
