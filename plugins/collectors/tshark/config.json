@@ -19,9 +19,9 @@
       }, 
       "custom": {
         "interfaces": {
-          "mode": "exclusive", 
+          "mode": "inclusive", 
           "interfaces": [
-            "lo"
+            "eth0"
           ]
         }
       }

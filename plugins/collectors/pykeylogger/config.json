@@ -10,7 +10,7 @@
         }
       }, 
       "archiving": {
-        "enabled": true, 
+        "enabled": false, 
         "time interval": 5, 
         "file format": "zip"
       }, 
