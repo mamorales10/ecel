@@ -41,7 +41,7 @@ import os.path
 import logging
 import re
 import copy
-import Image
+from PIL import Image
 import sys
 import datetime
 import time
