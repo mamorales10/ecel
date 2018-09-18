@@ -142,8 +142,8 @@ class Collector(object):
                 parent = psutil.Process(parent_pid)
                 try:
                     for child in parent.children(recursive=True):
-                        child.kill()
-                    parent.kill()
+                        child.terminate()
+                    parent.terminate()
                 except Exception as e:
                     print (" !! %s: %s" % (self.name, e))
                 else:
@@ -252,8 +252,8 @@ class AutomaticCollector(Collector):
                 parent = psutil.Process(parent_pid)
                 try:
                     for child in parent.children(recursive=True):
-                        child.kill()
-                    parent.kill()
+                        child.terminate()
+                    parent.terminate()
                 except Exception as e:
                     print (" !! %s: %s" % (self.name, e))
                 else:
