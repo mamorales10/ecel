@@ -121,10 +121,10 @@ class CollectorListBox(Gtk.ListBox):
         menu = Gtk.Menu()
 
         runItem = Gtk.MenuItem("Run " + collector.name)
-        runItem.connect("activate", self.attached_gui.startIndividualCollector, collector)
+        runItem.connect("activate", self.attached_gui.start_collector, collector)
 
         stopItem = Gtk.MenuItem("Stop " + collector.name)
-        stopItem.connect("activate", self.attached_gui.stopIndividualCollector, collector)
+        stopItem.connect("activate", self.attached_gui.stop_collector, collector)
 
         parseItem = Gtk.MenuItem("Parse " + collector.name + " data")
         parseItem.connect("activate", self.attached_gui.parser, collector)

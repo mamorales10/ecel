@@ -49,7 +49,7 @@ class CustomSystemTrayIcon:
         self.stopall_menu_item = Gtk.MenuItem("Stop All Collectors")
         self.stopall_menu_item.show()
         menu.append(self.stopall_menu_item)
-        self.stopall_menu_item.connect('activate', gui.stopall_collectors)
+        self.stopall_menu_item.connect('activate', gui.stop_all_collectors)
         self.stopall_menu_item.set_sensitive(False)
 
         #separator
@@ -95,7 +95,7 @@ class CustomSystemTrayIcon:
         for collector in app_engine.collectors:
             if collector.is_enabled:
                collector.terminate()
-        os._exit(0)
+
 
     def show_main_gui(self, event, gui):
         gui.show_gui()

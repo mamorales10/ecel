@@ -45,7 +45,7 @@ class Engine(object):
             if collector.is_enabled:
                self.logger.info("Closing: " + collector.name)
                collector.terminate()
-        os._exit(0)
+
 
     #TODO: TEST, method from main_gui.py
     def delete_all(self):
@@ -54,17 +54,17 @@ class Engine(object):
         self.logger.info("Deleting all collector data....")
         remove_cmd = os.path.join(os.path.join(os.getcwd(), "scripts"), delete_script)
         subprocess.call(remove_cmd)  # TODO: Change this to not call external script
-        os._exit(0)
 
-    def stopall_collectors(self):
+
+    def stop_all_collectors(self):
         for collector in self.collectors:
             if collector.is_enabled():
                 self.logger.info("Stopping: " + collector.name)
                 collector.terminate()
-        os._exit(0)
+
 
     #TODO: TEST, method from main_gui.py
-    def parse_all(self):
+    def parse_all_collectors_data(self):
         for collector in self.collectors:
             collector.parser.parse()
             #print "Parsing " + collector.name
@@ -76,7 +76,7 @@ class Engine(object):
         collector.parser.parse()
 
     #TODO: TEST, method from main_gui.py
-    def startIndividualCollector(self, collector):
+    def start_collector(self, collector):
         self.logger.info("Starting: " + collector.name)
         collector.run()
 
@@ -88,7 +88,7 @@ class Engine(object):
                 self.logger.info("Starting: "+ collector.name)
                 collector.run()
 
-    def stopIndividualCollector(self, collector):
+    def stop_collector(self, collector):
         self.logger.info("Stopping: " + collector.name)
         collector.terminate()
 
@@ -173,7 +173,7 @@ class Engine(object):
                 return True
         return False
 
-    def list_collectors(self):
+    def print_collector_names(self):
         for i, collector in enumerate(self.collectors):
             print "%d) %s" % (i, collector.name)
             self.logger.info("%d) %s" % (i, collector.name))

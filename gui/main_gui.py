@@ -363,7 +363,7 @@ class MainGUI(Gtk.Window):
         for collector in self.engine.collectors:
             if collector.is_enabled:
                collector.terminate()
-        os._exit(0)
+
 
     def parser(self, event, collector):
         collector.parser.parse()

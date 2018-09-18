@@ -196,8 +196,8 @@ class AutomaticCollector(Collector):
     def refresh_data(self):
         super(AutomaticCollector, self).refresh_data()
 
-        if self.config.collector_has_archiver():
-            self.archiver = Archiver(self)
+        #if self.config.collector_has_archiver():
+        #    self.archiver = Archiver(self)
 
     def run(self):
         if self.is_running():

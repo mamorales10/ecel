@@ -21,13 +21,13 @@ class ecel_Service(Service):
         engine = Engine()
         collector = engine.get_collector(self.collector)
         print self.logger.info(collector)
-        engine.startIndividualCollector(collector)
+        engine.start_collector(collector)
         while not self.got_sigterm():
             print self.logger.info("Running Collector...")
 
         if self.got_sigterm():
             print self.logger.info("Stopping all collectors and Exiting Program..")
-            engine.stopIndividualCollector(collector)
+            engine.stop_collector(collector)
             
 
 if __name__ == '__main__':
@@ -40,4 +40,3 @@ if __name__ == '__main__':
             print "%s" % (collector.name)
             service = ecel_Service(service_name, pid_dir='/tmp')
             service.start()
-    os._exit(0)

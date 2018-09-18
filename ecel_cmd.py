@@ -42,4 +42,4 @@ if __name__ == '__main__':
         elif args.stop:
             print "[-] Stopping Service"
             service.stop()
-    os._exit(0)
+
