@@ -45,7 +45,7 @@ class CollectorListBox(Gtk.ListBox):
         if(event.button == Gdk.BUTTON_PRIMARY and ((event.state & modifiers) == Gdk.ModifierType.SHIFT_MASK)):
         	print "Shift was pressed"
         	self.set_selection_mode(Gtk.SelectionMode.MULTIPLE)
-
+        
     # Left pane responds to up/down arrow and tab key presses
     def key_release_handler(self, listBox, event):
         modifiers = Gtk.accelerator_get_default_mod_mask()
@@ -68,6 +68,10 @@ class CollectorListBox(Gtk.ListBox):
     # When CTRL is released, the next left click resets the list box to single selection mode.
     def re_enable_single(self, lBox, event):
         if(event.button == Gdk.BUTTON_PRIMARY):
+            rows = self.get_selected_rows()
+            for lBoxRow in rows:
+                self.collectorStatus[lBoxRow.get_name()] = False
+            
         	self.disconnect_by_func(self.re_enable_single)
         	self.unselect_all()
         	self.set_selection_mode(Gtk.SelectionMode.SINGLE)
@@ -95,6 +99,11 @@ class CollectorListBox(Gtk.ListBox):
 
     # Show options over collector row on right click, select collector and create config window on left click
     def collector_listbox_handler(self, eventBox, event, collectorName):
+        if(event.type == Gdk.EventType._2BUTTON_PRESS or event.type == Gdk.EventType._3BUTTON_PRESS):
+        	rows = self.get_selected_rows()
+        	for lBoxRow in rows:
+        		self.collectorStatus[lBoxRow.get_name()] = False
+        	self.unselect_all()
         collector = self.engine.get_collector(collectorName)
         if(event.button == Gdk.BUTTON_SECONDARY): # right click
             self.show_collector_popup_menu(event,collector)
