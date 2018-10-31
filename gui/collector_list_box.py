@@ -45,6 +45,8 @@ class CollectorListBox(Gtk.ListBox):
         if(event.button == Gdk.BUTTON_PRIMARY and ((event.state & modifiers) == Gdk.ModifierType.SHIFT_MASK)):
         	print "Shift was pressed"
         	self.set_selection_mode(Gtk.SelectionMode.MULTIPLE)
+        	currently_selected_collector = self.get_selected_row().get_name()
+        	self.collectorStatus[currently_selected_collector] = True
         
     # Left pane responds to up/down arrow and tab key presses
     def key_release_handler(self, listBox, event):
@@ -104,6 +106,7 @@ class CollectorListBox(Gtk.ListBox):
         	for lBoxRow in rows:
         		self.collectorStatus[lBoxRow.get_name()] = False
         	self.unselect_all()
+
         collector = self.engine.get_collector(collectorName)
         if(event.button == Gdk.BUTTON_SECONDARY): # right click
             self.show_collector_popup_menu(event,collector)
@@ -118,6 +121,12 @@ class CollectorListBox(Gtk.ListBox):
             self.unselect_row(row)
 
         self.collectorStatus[row.get_name()] = activate
+        if(row.get_name() == self.attached_gui.get_current_config_window_name()):
+        	for c in self.collectorStatus:
+        		if(self.collectorStatus[c] == True):
+        			collector = self.engine.get_collector(c)
+        			self.attached_gui.create_config_window(Gdk.Event(), collector)
+        			break
         self.update_row_colors(Gdk.Event(), row)
 
     # Return the Gtk.ListBoxRow() based on the its name (string)
@@ -172,6 +181,8 @@ class CollectorListBox(Gtk.ListBox):
         if(self.get_selection_mode() == Gtk.SelectionMode.MULTIPLE):
             if(lBoxRow.get_name() != self.attached_gui.get_current_config_window_name()):
                 self.toggle_clicked_row(lBoxRow)
+            elif(lBoxRow.get_name() == self.attached_gui.get_current_config_window_name()):
+            	self.toggle_clicked_row(lBoxRow)
             if(not self.attached_gui.is_config_window_active()):
                 self.attached_gui.create_config_window(Gdk.Event(), collector)
         self.update_row_colors(Gdk.Event(),lBoxRow)
