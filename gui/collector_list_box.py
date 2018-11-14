@@ -44,11 +44,16 @@ class CollectorListBox(Gtk.ListBox):
 
         if(Gdk.keyval_name(event.keyval) == 'Shift_L' or Gdk.keyval_name(event.keyval) == 'Shift_R'):
 				print("Shift was pressed.")
-				if(lBox.get_selection_mode() == Gtk.SelectionMode.SINGLE):
+				
+				if(self.get_selection_mode() == Gtk.SelectionMode.MULTIPLE):
+					self.disconnect_by_func(self.re_enable_single)
+				else:
 					lBox.set_selection_mode(Gtk.SelectionMode.MULTIPLE)
-					print("MULTIPLE selection is activated")
-					current_selected_collector = self.get_selected_row().get_name()
-					self.collectorStatus[current_selected_collector] = True
+				# print self.get_selection_mode()
+				# lBox.set_selection_mode(Gtk.SelectionMode.MULTIPLE)
+				print("MULTIPLE selection is activated")
+				current_selected_collector = self.get_selected_row().get_name()
+				self.collectorStatus[current_selected_collector] = True
 
 
     # Left pane responds to up/down arrow and tab key presses
@@ -118,7 +123,9 @@ class CollectorListBox(Gtk.ListBox):
 	        	for lBoxRow in rows:
 	        		self.collectorStatus[lBoxRow.get_name()] = False
 	        	self.unselect_all()
-	        	self.toggle_clicked_row(self.last_selected_row)        	
+	        	self.toggle_clicked_row(self.last_selected_row)
+	        	double_clicked_collector = self.engine.get_collector(self.last_selected_row.get_name())
+	        	self.attached_gui.create_config_window(Gdk.Event(), double_clicked_collector)        	
 
         collector = self.engine.get_collector(collectorName)
         if(event.button == Gdk.BUTTON_SECONDARY): # right click
@@ -188,8 +195,17 @@ class CollectorListBox(Gtk.ListBox):
             self.attached_gui.create_config_window(Gdk.Event(),collector)
         if(self.get_selection_mode() == Gtk.SelectionMode.MULTIPLE):
 			if(lBoxRow.get_name() != self.attached_gui.get_current_config_window_name()):
+				
+				no_collectors_active = True
+				for i in self.collectorStatus:
+					if(self.collectorStatus[i] == True):
+						no_collectors_active = False
+
 				self.toggle_clicked_row(lBoxRow)
-			if(lBoxRow.get_name() == self.attached_gui.get_current_config_window_name()):
+				if(no_collectors_active):
+					self.attached_gui.create_config_window(Gdk.Event(), collector)
+
+			elif(lBoxRow.get_name() == self.attached_gui.get_current_config_window_name()):
 				self.toggle_clicked_row(lBoxRow)
 				for c in self.collectorStatus:
 					if(self.collectorStatus[c] == True):
