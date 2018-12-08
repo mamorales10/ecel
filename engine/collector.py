@@ -44,6 +44,13 @@ class Collector(object):
         self.output_dir = os.path.join(self.base_dir, definitions.PLUGIN_COLLECTORS_OUTPUT_DIRNAME)
         self.parsed_dir = os.path.join(self.base_dir, definitions.PLUGIN_COLLECTORS_PARSED_DIRNAME)
         self.output_metadata_dir = os.path.join(self.output_dir, definitions.PLUGIN_COLLECTORS_METADATA_DIRNAME)
+	
+	if not os.path.exists(self.output_dir):
+            os.mkdir(self.output_dir)
+
+	if not os.path.exists(self.parsed_dir):
+            os.mkdir(self.parsed_dir)
+
 
         self.devnull = open(os.devnull,'w')
 
@@ -185,6 +192,9 @@ class AutomaticCollector(Collector):
         super(AutomaticCollector, self).__init__(collector_config)
 
         self.compressed_dir = os.path.join(self.base_dir, definitions.PLUGIN_COLLECTORS_COMPRESSED_DIRNAME)
+
+	if not os.path.exists(self.compressed_dir):
+            os.mkdir(self.compressed_dir)
 
         self.commands = []
         self.output_filenames = []
