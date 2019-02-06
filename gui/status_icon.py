@@ -67,7 +67,7 @@ class CustomSystemTrayIcon:
         quit_menu_item = Gtk.MenuItem("Quit")
         quit_menu_item.show()
         menu.append(quit_menu_item)
-        quit_menu_item.connect('activate', self.kill_me, app_engine)
+        quit_menu_item.connect('activate', self.kill_me, app_engine, gui)
 
         # Appindicator currently not working on windows
         if(os.name != 'nt'):
@@ -91,11 +91,12 @@ class CustomSystemTrayIcon:
         about_dialog.run()
         about_dialog.destroy()
 
-    def kill_me(self, event, app_engine):
+    def kill_me(self, event, app_engine, gui):
         for collector in app_engine.collectors:
             if collector.is_enabled:
                collector.terminate()
-
+        gui.destroy()
+        exit()
 
     def show_main_gui(self, event, gui):
         gui.show_gui()
